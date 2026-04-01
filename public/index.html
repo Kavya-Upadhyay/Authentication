@@ -1,0 +1,32 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.6/axios.min.js"></script>
+</head>
+<body>
+    <div>
+        <input type="text" id="username"></input>
+        <input type="password" id="password"></input>
+        <button onclick="login()">Login</button>
+    </div>
+
+    <script>
+        async function login(){
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            const res = await axios.post("http://localhost:3000/login",{
+                username:username,
+                password:password
+            })
+
+            console.log(res.data);
+        }
+    </script>
+
+</body>
+</html>
