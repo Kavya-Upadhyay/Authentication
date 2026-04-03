@@ -30,7 +30,7 @@ app.post('/signup',(req,res)=>{
         })
     }
 
-    console.log(users)
+    // console.log(users)
 
 });
 
@@ -64,7 +64,7 @@ app.post('/signin',(req,res)=>{
         })
     }
 
-    console.log(users)
+    // console.log(users)
 
 
 })
@@ -83,10 +83,10 @@ app.post('/signin',(req,res)=>{
 //     return result;
 // }
 
-
 app.get("/me",(req,res)=>{
     const token = req.headers.token;
     const decoded = jwt.verify(token, JWT_SECRET);
+    console.log(decoded)
     const user = decoded.user;
 
     let founduser=null;
