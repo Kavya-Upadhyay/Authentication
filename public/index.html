@@ -5,27 +5,90 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.6/axios.min.js"></script>
+
 </head>
 <body>
     <div>
-        <input type="text" id="username"></input>
-        <input type="password" id="password"></input>
-        <button onclick="login()">Login</button>
+        <input type="text" id="signup-username"></input>
+        <input type="password" id="signup-password"></input>
+        <button onclick="signup()">Signup</button>
     </div>
 
-    <script>
-        async function login(){
-            const username = document.getElementById("username").value;
-            const password = document.getElementById("password").value;
+    <div>
+        <input type="text" id="signin-username"></input>
+        <input type="password" id="signin-password"></input>
+        <button onclick="signin()">SignIn</button>
+    </div>
 
-            const res = await axios.post("http://localhost:3000/login",{
-                username:username,
-                password:password
+    <div id = "result"></div>
+    <button type="submit" onclick="logout()">logout</button>
+
+    <script>
+
+        async function signup() {
+            const username = document.getElementById("signup-username").value;
+            const password = document.getElementById("signup-password").value;
+
+            const res = await fetch("http://localhost:3000/signup", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await res.json();
+            console.log(data); // check browser console for server response
+        }
+
+        async function signin() {
+            var username = document.getElementById("signin-username").value;
+            var pwd = document.getElementById("signin-password").value;
+
+            const response = await fetch("http://localhost:3000/signin",{
+                method : 'POST',
+                headers : {
+                    'Content-Type' : 'application/json'
+                },
+                body : JSON.stringify({
+                    'username' : username,
+                    'password' : pwd
+                })
             })
 
-            console.log(res.data);
+            const data = await response.json();
+            if(response.ok && data.token){
+                localStorage.setItem('token',data.message);
+                alert("Successfully signed In");
+                getme();
+            }
+            else {
+                alert("Signin failed: " + (data.message || "Invalid credentials"));
+            }
         }
+
+
+        async function getme(){
+            const token = localStorage.getItem('token');
+            const response = await fetch("http://localhost:3000/me",{
+                method : 'GET',
+                headers : {
+                    'Content-Type' : 'application/json',
+                    'token' : token
+                }
+            })
+
+            const data = await response.json();
+            document.getElementById("result").innerHTML = JSON.stringify(data);
+        }
+
+        const logout = ()=>{
+            localStorage.removeItem('token');
+            document.getElementById("result").innerHTML = "";
+            alert("You logged out successfully")
+        }
+
+
     </script>
 
 </body>

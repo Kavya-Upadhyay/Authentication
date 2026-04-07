@@ -5,7 +5,11 @@ const jwt = require("jsonwebtoken");
 const JWT_SECRET = "randombrocode";
 
 
-app.use(cors());
+app.use(cors({
+    origin: "*",
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type", "token"]
+}));
 app.use(express.json());
 
 
@@ -36,6 +40,7 @@ app.post('/signup',(req,res)=>{
 
 
 app.post('/signin',(req,res)=>{
+
     const username = req.body.username;
     const password = req.body.password;
 
@@ -43,9 +48,8 @@ app.post('/signin',(req,res)=>{
         if(u.username === username && u.password === password){
             return true;
         }
-        return false;
-    }))
 
+    }))
 
     if(foundUser){
 
@@ -55,14 +59,17 @@ app.post('/signin',(req,res)=>{
 
         // foundUser.token = token
         res.json({
-            message : token
+            token : token
         })
+
     }
     else{
         res.status(403).send({
             message: 'Invalid username or password'
+
         })
     }
+
 
     // console.log(users)
 
@@ -83,31 +90,44 @@ app.post('/signin',(req,res)=>{
 //     return result;
 // }
 
-app.get("/me",(req,res)=>{
+app.get("/me", auth, (req,res)=>{
+
+        let founduser=null;
+        for(let i=0;i<users.length;i++){
+            if(users[i].username === req.username) {
+                founduser = users[i];
+            }
+        }
+
+        if(founduser){
+            res.status(200).send({
+                username : founduser.username,
+                password: founduser.password,
+            })
+        }
+
+
+})
+
+function auth(req, res, next){
     const token = req.headers.token;
     const decoded = jwt.verify(token, JWT_SECRET);
-    console.log(decoded)
-    const user = decoded.user;
 
-    let founduser=null;
-    for(let i=0;i<users.length;i++){
-        if(users[i].username === decoded.username) {
-            founduser = users[i];
-        }
-    }
 
-    if(founduser){
-        res.status(403).send({
-            username : decoded.username,
-            password: founduser.password,
-        })
+    if(decoded.username){
+        req.username = decoded.username;
+        next();
     }
     else{
-        res.status(401).send({
-            message: 'Invalid username or password'
+        res.status(403).send({
+            message: 'Please login first'
         })
     }
-})
+
+}
+
+
+
 
 app.listen(3000, () => {
     console.log('Server is running on port 3000');
